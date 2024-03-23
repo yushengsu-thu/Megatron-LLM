@@ -25,25 +25,17 @@ pip install tensorboard>=2.16
 ## Build Megatron
 python setup.py install
 
+# compile helper.cpp
+cd megatron/data
+make
+cd ../..
+
 #######################################################
 #####The newer megatron might need: magatron.core######
 #######################################################
 
 
 '''
-##Must follow
-# Clone repository, checkout stable branch, clone submodules
-git clone --branch stable --recursive https://github.com/NVIDIA/TransformerEngine.git
-
-cd TransformerEngine
-export NVTE_FRAMEWORK=pytorch   # Optionally set framework
-pip install .                   # Build and install
-
-git submodule update --init --recursive
-#pip install -v --disable-pip-version-check --no-build-isolation --no-cache-dir ./
-
-
-
 pip install six==1.16.0
 pip install regex==2023.12.25
 '''

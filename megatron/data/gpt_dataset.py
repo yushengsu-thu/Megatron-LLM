@@ -28,6 +28,7 @@ def build_train_valid_test_datasets(data_prefix: Optional[str],
                                     valid_data_prefix=None,
                                     test_data_prefix=None):
     """Build train, valid, and test datasets."""
+
     if data_prefix:
         print_rank_0("Single data path provided for train, valid & test")
         # Single dataset.

@@ -46,10 +46,13 @@ def get_datasets_weights_and_num_samples(data_prefix,
 
     # The data prefix should be in the format of:
     #   weight-1, data-prefix-1, weight-2, data-prefix-2, ..
+
+    
     assert len(data_prefix) % 2 == 0
     num_datasets = len(data_prefix) // 2
     weights = [0]*num_datasets
     prefixes = [0]*num_datasets
+
     for i in range(num_datasets):
         weights[i] = float(data_prefix[2*i])
         prefixes[i] = (data_prefix[2*i+1]).strip()

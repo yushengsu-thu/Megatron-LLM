@@ -8,6 +8,7 @@ OUTPUT_DIR=$DATA_PREFIX/$DATASET/"tokenized"
 mkdir $OUTPUT_DIR
 
 '''
+###################
 ## data preprocessing
 #python3 ../tools/preprocess_instruct_data.py \
 #	--input $DATA_PREFIX/$DATASET/data.jsonl \
@@ -20,6 +21,7 @@ mkdir $OUTPUT_DIR
 #	--question_key question \
 #	--answer_key response \
 #	--system_key system_prompt  # Optional
+###################
 
 
 python ../tools/preprocess_data.py \
@@ -44,7 +46,6 @@ python3 ../weights_conversion/hf_to_megatron.py \
     --model-path $LLM_LOAD_DIR \
     --cache-dir $LLM_LOAD_DIR
 
-'''
 
 
 
@@ -59,24 +60,26 @@ COMMON_ARGS="--hidden_dropout 0.0 --attention_dropout 0.0 --no_bias_gelu_fusion"
 LLM_LOAD_DIR="/lustre/scratch/shared-folders/llm_project/yusheng/mt/Megatron-LLM/llm/llama/llama-2-7b/llama-2-7b_mt/"
 LLM_SAVE_DIR="/lustre/scratch/shared-folders/llm_project/yusheng/mt/Megatron-LLM/llm/llama/llama-2-7b/llama-2-7b_mt_sft/"
 TENSORBOARD_DIR="/lustre/scratch/shared-folders/llm_project/yusheng/mt/Megatron-LLM/tensorboard/"
-DATA_DIR=$OUTPUT_DIR
+DATA_DIR=$OUTPUT_DIR/starcoder_text_document # without the .idx or .bin extension
 VOCAB_PREFIX="/lustre/scratch/shared-folders/llm_project/yusheng/mt/Megatron-LLM/llm/llama/llama-2-7b/llama-2-7b_mt"
 
 torchrun $DISTRIBUTED_ARGS ../verify_correctness.py \
 	--model_name llama2 \
 	--model_size 7 \
 	--load $LLM_LOAD_DIR \
-	--data_path $DATA_DIR \  # without the .idx or .bin extension
+	--data_path $DATA_DIR \
 	--tokenizer_type SentencePieceTokenizer \
 	--vocab_file $VOCAB_PREFIX/tokenizer.model \
 	--huggingface_cache $LLM_LOAD_DIR \
 	--huggingface_device cuda:1 \
 	$COMMON_ARGS $LLAMA_ARGS  # dont include LLAMA_ARGS if using Falcon
 
+    # --data_path $DATA_DIR/starcoder_text_document \ --> # without the .idx or .bin extension
 
 
+'''
 
-exit
+
 
 
 #Model sharding
@@ -91,6 +94,8 @@ python3 ../tools/checkpoint_util.py \
 	--bf16
 
 
+exit
+
 
 NUMBER_OF_GPUS_for_EACH_NODE=4
 #NUMBER_OF_GPUS_for_EACH_NODE=1
@@ -101,7 +106,7 @@ NODE_ID=0
 LLM_LOAD_DIR="/lustre/scratch/shared-folders/llm_project/yusheng/mt/Megatron-LLM/llm/llama/llama-2-7b/llama-2-7b_mt/"
 LLM_SAVE_DIR="/lustre/scratch/shared-folders/llm_project/yusheng/mt/Megatron-LLM/llm/llama/llama-2-7b/llama-2-7b_mt_sft/"
 TENSORBOARD_DIR="/lustre/scratch/shared-folders/llm_project/yusheng/mt/Megatron-LLM/tensorboard/"
-DATA_DIR=$DATA_PREFIX/$DATASET"_processed"
+DATA_DIR=$DATA_DIR
 VOCAB_PREFIX="/lustre/scratch/shared-folders/llm_project/yusheng/mt/Megatron-LLM/llm/llama/llama-2-7b/llama-2-7b_mt"
 
 
