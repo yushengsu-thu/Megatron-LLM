@@ -419,6 +419,7 @@ def _load_base_checkpoint(load_dir, use_distributed_optimizer, rank0=False, spec
     # Read the tracker file and set the iteration.
     tracker_filename = get_checkpoint_tracker_filename(load_dir)
 
+
     # If no tracker file, return nothing
     if not os.path.isfile(tracker_filename):
         if not rank0:
@@ -427,6 +428,7 @@ def _load_base_checkpoint(load_dir, use_distributed_optimizer, rank0=False, spec
             print_rank_0('    will not load any checkpoints and will start from '
                          'random')
         return None, None, False
+    
 
     # Otherwise, read the tracker file and either set the iteration or
     # mark it as a release checkpoint.
@@ -437,6 +439,8 @@ def _load_base_checkpoint(load_dir, use_distributed_optimizer, rank0=False, spec
         )
         iteration = specify_iteration
         release = iteration == 0
+
+        
 
     # Checkpoint.
     if rank0:
@@ -452,7 +456,10 @@ def _load_base_checkpoint(load_dir, use_distributed_optimizer, rank0=False, spec
 
     model_checkpoint_name, optim_checkpoint_name = checkpoint_names
 
+
     # Load the checkpoint.
+
+
     try:
         model_state_dict = torch.load(model_checkpoint_name, map_location='cpu')
         if use_distributed_optimizer:
@@ -477,6 +484,7 @@ def _load_base_checkpoint(load_dir, use_distributed_optimizer, rank0=False, spec
         print_rank_0(e)
         sys.exit()
     return model_state_dict, optim_state_dict, release
+
 
 
 def load_args_from_checkpoint(args, load_arg='load'):
@@ -507,6 +515,7 @@ def load_args_from_checkpoint(args, load_arg='load'):
     # For args we only care about model state dict
     state_dict = model_state_dict
     
+
     if not state_dict:
         print_rank_0('Checkpoint not found to provide arguments, using provided arguments.')
         return args
@@ -531,6 +540,7 @@ def load_args_from_checkpoint(args, load_arg='load'):
         if checkpoint_value is not None:
             print_rank_0(f"Setting {arg_name} to {checkpoint_value} from checkpoint")
             setattr(args, arg_name, checkpoint_value)
+    
 
     _set_arg('num_layers')
     _set_arg('hidden_size')

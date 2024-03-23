@@ -16,3 +16,11 @@ megatron/data/helpers
 
 docs/_build/
 docs/api/megatron/
+
+
+llm/llama/*
+sft_data/*
+git_push.sh
+TransformerEngine
+tensorboard/*
+apex-23.08

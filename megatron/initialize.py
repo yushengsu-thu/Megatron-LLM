@@ -35,6 +35,7 @@ def initialize_megatron(extra_args_provider=None,
     # Make sure cuda is available.
     assert torch.cuda.is_available(), 'Megatron requires CUDA.'
 
+
     # Parse arguments
     args = megatron.arguments.parse_args(extra_args_provider)
 
@@ -62,6 +63,7 @@ def initialize_megatron(extra_args_provider=None,
     _init_autoresume()
     # _compile_dependencies(args)
 
+    
     # No continuation function
     return None
 

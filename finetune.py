@@ -29,7 +29,7 @@ def model_provider(pre_process: bool = True, post_process: bool = True):
     print_rank_0("Building model ...")
 
     args = get_args()
-    if args.model_name == "gpt": 
+    if args.model_name == "gpt":
         cls = GPTModel
     elif args.model_name == "falcon":
         cls = FalconModel
@@ -176,6 +176,8 @@ def data_provider(train_val_test_num_samples):
         builder = instruct_build_datasets
 
     print_rank_0("> building train, validation, and test datasets ...")
+
+    
     train_ds, valid_ds, test_ds = builder(
         data_prefix=args.data_path,
         data_impl=args.data_impl,
@@ -245,10 +247,8 @@ def extra_args(parser):
     group.add_argument("--model_name",
                        choices={"gpt", "llama", "falcon", "llama2", "codellama", "mistral"},
                        default="gpt")
-    group.add_argument("--model_type", choices={"encoder_or_decoder", "encoder_and_decoder"},
-                       default="encoder_or_decoder")
-    group.add_argument("--data_type", choices={"gpt", "instruction"},
-                       default="gpt")
+    group.add_argument("--model_type", choices={"encoder_or_decoder", "encoder_and_decoder"}, default="encoder_or_decoder")
+    group.add_argument("--data_type", choices={"gpt", "instruction"},default="gpt")
     group.add_argument("--log_learning_rate_to_tensorboard", type=bool, default=True)
     group.add_argument("--log_loss_scale_to_tensorboard", type=bool, default=True)
     return parser
@@ -257,6 +257,7 @@ def extra_args(parser):
 if __name__ == "__main__":
     args_defaults = {"tokenizer_type": "GPT2BPETokenizer"}
     initialize_megatron(extra_args, args_defaults)
+
     args = get_args()
 
     if args.data_type == "gpt":

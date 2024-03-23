@@ -28,7 +28,7 @@ Depending on the model to convert, the inputs might differ.
         Note that to download llama v2 weights from huggingface, you will need to
         login using `huggingface-cli login` with a huggingface account which has been
         granted access to the `meta-llama/Llama-2-7b-hf` model.
-        
+
 
 In all cases, the megatron checkpoint will be stored in the `--out` argument.
 If a huggingface is specified, the intermediate weights (i.e. the huggingface weights)
@@ -324,7 +324,7 @@ def main(model_name: str = "falcon", size: int = 7, out: Optional[Path] = None,
             "use_rms_norm": True,
             "tie_embed_logits": False,
             "tokenizer_type": "SentencePieceTokenizer",
-            
+
             "max_position_embeddings": 32768,
             "seq_length": 32768,
             "layernorm_epsilon": 1e-5,
@@ -421,15 +421,11 @@ def main(model_name: str = "falcon", size: int = 7, out: Optional[Path] = None,
 if __name__ == "__main__":
     parser = ArgumentParser(description="Convert Huggingface llama or falcon weights to "
                                         "megatron-compatible weights")
-    parser.add_argument("model", choices={"falcon", "llama", "llama2", "codellama", "mistral"})
-    parser.add_argument("--size", default=7, choices={7, 13, 30, 34, 40, 65, 70}, type=int,
-                        help="The size of the model")
-    parser.add_argument("--out", type=Path,
-                        help="Directory to store the megatron weights (as checkpoint)")
-    parser.add_argument("--model-path",
-                        help="Sets model_name_or_path when fetching weights from huggingface")
-    parser.add_argument("--cache-dir", type=Path,
-                        help=("Directory to use as cache for the huggingface "
+    parser.add_argument("--model", default="llama2", choices={"falcon", "llama", "llama2", "codellama", "mistral"})
+    parser.add_argument("--size", default=7, choices={7, 13, 30, 34, 40, 65, 70}, type=int, help="The size of the model")
+    parser.add_argument("--out", type=Path, help="Directory to store the megatron weights (as checkpoint)")
+    parser.add_argument("--model-path", type=Path, help="Sets model_name_or_path when fetching weights from huggingface")
+    parser.add_argument("--cache-dir", type=Path, help=("Directory to use as cache for the huggingface "
                               "weights, or in case of the llama model, the path "
                               "of the weights privided Meta"))
     args = parser.parse_args()
@@ -445,5 +441,6 @@ if __name__ == "__main__":
         assert args.size in {7}
     else:
         assert args.size in {7, 13, 70}
+
 
     main(args.model, args.size, args.out, args.cache_dir, args.model_path)

@@ -159,6 +159,7 @@ def get_args():
 
 def main():
     args = get_args()
+
     startup_start = time.time()
 
     encoder = Encoder(args)
