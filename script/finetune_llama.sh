@@ -1,6 +1,10 @@
 # downlaod data
 
-DATASET="startcoder"
+export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
+
+
+#DATASET="startcoder"
+DATASET="orca"
 DATA_PREFIX="/lustre/scratch/shared-folders/llm_project/yusheng/mt/Megatron-LLM/sft_data"
 VOCAB_PREFIX="/lustre/scratch/shared-folders/llm_project/yusheng/mt/Megatron-LLM/llm/llama/llama-2-7b/llama-2-7b_hf"
 
@@ -9,7 +13,7 @@ mkdir $OUTPUT_DIR
 
 '''
 ###################
-## data preprocessing
+## data preprocessing: orca
 #python3 ../tools/preprocess_instruct_data.py \
 #	--input $DATA_PREFIX/$DATASET/data.jsonl \
 #	--output_prefix $OUTPUT_DIR \
@@ -24,6 +28,7 @@ mkdir $OUTPUT_DIR
 ###################
 
 
+## data preprocessing: starcoder
 python ../tools/preprocess_data.py \
     --input $DATA_PREFIX/$DATASET/raw.jsonl \
 	--output_prefix $OUTPUT_DIR/starcoder \
@@ -46,14 +51,14 @@ python3 ../weights_conversion/hf_to_megatron.py \
     --model-path $LLM_LOAD_DIR \
     --cache-dir $LLM_LOAD_DIR
 
-
+'''
 
 
 
 
 # Correctness verification (optional)
 # arguments required by `torchrun`
-DISTRIBUTED_ARGS="--nproc_per_node 1 --nnodes 1 --node_rank 0 --master_addr localhost --master_port 8000"
+DISTRIBUTED_ARGS="--nproc_per_node 2 --nnodes 1 --node_rank 0 --master_addr localhost --master_port 8000"
 LLAMA_ARGS="--use_rms_norm --glu_activation swiglu --no_tie_embed_logits --no_new_tokens --layernorm_epsilon 1e-5"
 COMMON_ARGS="--hidden_dropout 0.0 --attention_dropout 0.0 --no_bias_gelu_fusion"
 
@@ -63,6 +68,7 @@ TENSORBOARD_DIR="/lustre/scratch/shared-folders/llm_project/yusheng/mt/Megatron-
 DATA_DIR=$OUTPUT_DIR/starcoder_text_document # without the .idx or .bin extension
 VOCAB_PREFIX="/lustre/scratch/shared-folders/llm_project/yusheng/mt/Megatron-LLM/llm/llama/llama-2-7b/llama-2-7b_mt"
 
+'''
 torchrun $DISTRIBUTED_ARGS ../verify_correctness.py \
 	--model_name llama2 \
 	--model_size 7 \
@@ -71,42 +77,42 @@ torchrun $DISTRIBUTED_ARGS ../verify_correctness.py \
 	--tokenizer_type SentencePieceTokenizer \
 	--vocab_file $VOCAB_PREFIX/tokenizer.model \
 	--huggingface_cache $LLM_LOAD_DIR \
-	--huggingface_device cuda:1 \
+	--huggingface_device cuda:0 \
 	$COMMON_ARGS $LLAMA_ARGS  # dont include LLAMA_ARGS if using Falcon
 
     # --data_path $DATA_DIR/starcoder_text_document \ --> # without the .idx or .bin extension
-
-
 '''
-
 
 
 
 #Model sharding
 
+LLM_SAVE_SHARDED_DIR="/lustre/scratch/shared-folders/llm_project/yusheng/mt/Megatron-LLM/llm/llama/llama-2-7b/llama-2-7b_mt_sharded/"
+VOCAB_SIZE=32000
+'''
 python3 ../tools/checkpoint_util.py \
 	--target_tensor_parallel_size 2 \
 	--target_pipeline_parallel_size 1 \
-	--load_dir /path/to/megatron/weights/ \
-	--save_dir /path/to/sharded/weights/ \
+	--load_dir $LLM_LOAD_DIR \
+	--save_dir $LLM_SAVE_SHARDED_DIR \
 	--model_type llama2 \
-	--true_vocab_size 32000 \
 	--bf16
 
+    #--true_vocab_size $VOCAB_SIZE \
+'''
 
-exit
 
-
-NUMBER_OF_GPUS_for_EACH_NODE=4
+NUMBER_OF_GPUS_for_EACH_NODE=2
 #NUMBER_OF_GPUS_for_EACH_NODE=1
 NUMBER_OF_NODES=1
 NODE_ID=0
 #localhost=172.23.30.9
 
-LLM_LOAD_DIR="/lustre/scratch/shared-folders/llm_project/yusheng/mt/Megatron-LLM/llm/llama/llama-2-7b/llama-2-7b_mt/"
+LLM_LOAD_DIR=$LLM_SAVE_SHARDED_DIR
 LLM_SAVE_DIR="/lustre/scratch/shared-folders/llm_project/yusheng/mt/Megatron-LLM/llm/llama/llama-2-7b/llama-2-7b_mt_sft/"
 TENSORBOARD_DIR="/lustre/scratch/shared-folders/llm_project/yusheng/mt/Megatron-LLM/tensorboard/"
-DATA_DIR=$DATA_DIR
+#DATA_DIR=$OUTPUT_DIR/starcoder_text_document
+DATA_DIR=$OUTPUT_DIR/tokenized
 VOCAB_PREFIX="/lustre/scratch/shared-folders/llm_project/yusheng/mt/Megatron-LLM/llm/llama/llama-2-7b/llama-2-7b_mt"
 
 
@@ -126,8 +132,8 @@ torchrun $DISTRIBUTED_ARGS ../finetune.py \
 	--vocab_file $VOCAB_PREFIX/tokenizer.model \
 	--bf16 \
 	--use_flash_attn \
-	--micro_batch_size 8 \
-	--global_batch_size 64 \
+	--micro_batch_size 1 \
+	--global_batch_size 2 \
 	--sequence_parallel \
 	--recompute_granularity selective \
 	--use_checkpoint_args \
@@ -135,3 +141,8 @@ torchrun $DISTRIBUTED_ARGS ../finetune.py \
 	--variable_seq_lengths \
 	--vocab_extra_ids_list "<|im_start|>,<|im_end|>" \
 	$COMMON_ARGS $LOG_ARGS $TRAIN_ARGS $LLAMA_ARGS
+
+
+    #--padded_vocab_size $VOCAB_SIZE\
+	#--micro_batch_size 8 \
+	#--global_batch_size 64 \

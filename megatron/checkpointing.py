@@ -37,6 +37,7 @@ def check_checkpoint_args(checkpoint_args):
     arguments and the one retrieved from checkpoint."""
     args = get_args()
 
+    
     def _compare(arg_name, old_arg_name=None):
         if old_arg_name is not None:
             checkpoint_value = getattr(checkpoint_args, old_arg_name)

@@ -177,7 +177,7 @@ def data_provider(train_val_test_num_samples):
 
     print_rank_0("> building train, validation, and test datasets ...")
 
-     
+
     train_ds, valid_ds, test_ds = builder(
         data_prefix=args.data_path,
         data_impl=args.data_impl,
@@ -251,6 +251,8 @@ def extra_args(parser):
     group.add_argument("--data_type", choices={"gpt", "instruction"},default="gpt")
     group.add_argument("--log_learning_rate_to_tensorboard", type=bool, default=True)
     group.add_argument("--log_loss_scale_to_tensorboard", type=bool, default=True)
+    ##add
+    #group.add_argument("--padded_vocab_size", type=int, default=32000)
     return parser
 
 
@@ -259,6 +261,15 @@ if __name__ == "__main__":
     initialize_megatron(extra_args, args_defaults)
 
     args = get_args()
+
+    print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+    print("!!!!!!!!!!!!!!Wrong!!!!!!!!!!!!!!!!")
+    print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+    print("!!Froce padded_vocab_size to 3200!!")
+    args.padded_vocab_size = 32000
+    print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+    print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+
 
     if args.data_type == "gpt":
         collate_fn = None

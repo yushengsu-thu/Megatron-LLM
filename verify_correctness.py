@@ -200,7 +200,7 @@ def extra_extra_args(parser):
         "If llama, optional: either the path to converted huggingface weights "
         "(use convert_llama_weights_to_hf.py) or the huggingface cache dir."
     ))
-    group.add_argument("--huggingface_device", default="cuda:1", dest="baseline_device",
+    group.add_argument("--huggingface_device", default="cuda:0", dest="baseline_device",
                        help="Device to use for the baseline model")
     group.add_argument("--model_size", type=int, default=7)
     return parser
@@ -210,7 +210,7 @@ if __name__ == "__main__":
     defaults = {"micro_batch_size": 1, "use_checkpoint_args": True, "train_iters": 10,
                 "lr": 1.0}
     # if not is_megatron_path(parse_args(extra_extra_args).load):
-    #     defaults.update({"encoder_num_layers": 1, "hidden_size": 1, 
+    #     defaults.update({"encoder_num_layers": 1, "hidden_size": 1,
     #                      "num_attention_heads": 1, "seq_length": 2048,
     #                      "max_position_embeddings": 2048})
     initialize_megatron(extra_extra_args, args_defaults=defaults)

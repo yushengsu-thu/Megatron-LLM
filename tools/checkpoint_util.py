@@ -1,3 +1,4 @@
+import torch
 import importlib
 import sys
 
@@ -104,6 +105,8 @@ def load_plugin(plugin_type, name):
 
 
 def main():
+
+    
     import argparse
     parser = argparse.ArgumentParser(description="Megatron Checkpoint Utility Arguments",
                                      allow_abbrev=False, conflict_handler='resolve')
@@ -130,22 +133,24 @@ def main():
                         'specified, the latest checkpoint (highest iteration '
                         'number) located in the load directory will be used.')
 
+    
     known_args, _ = parser.parse_known_args()
     loader = load_plugin('loader', known_args.loader)
     saver = load_plugin('saver', known_args.saver)
 
+    
     loader.add_arguments(parser)
     saver.add_arguments(parser)
 
+
     args = parser.parse_args()
-
     queue = mp.Queue(maxsize=args.max_queue_size)
-
     print("Starting saver...")
     saver_proc = mp.Process(target=saver.save_checkpoint, args=(queue, args))
     saver_proc.start()
 
     print("Starting loader...")
+    # load_checkpoint lookup
     loader.load_checkpoint(queue, args)
 
     print("Waiting for saver to complete...")

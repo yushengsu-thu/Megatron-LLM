@@ -54,7 +54,7 @@ def load(args):
                             '-U__CUDA_NO_HALF_CONVERSIONS__',
                             '--expt-relaxed-constexpr',
                             '--expt-extended-lambda']
-        
+
         # Upper triangular softmax.
         sources=[srcpath / 'scaled_upper_triang_masked_softmax.cpp',
                  srcpath / 'scaled_upper_triang_masked_softmax_cuda.cu']
